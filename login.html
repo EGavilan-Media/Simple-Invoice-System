@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - Simple Invoice System</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" type="text/css" href="css/egm-login.css">
+    <!-- Bootstrap core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="./images/favicon.jpg">
+</head>
+<body>
+  <div class="wrapper fadeInDown">
+    <div id="formContent">
+      <!-- Icon -->
+      <div class="fadeIn first">
+        <img src="images/EGM.png" id="icon" alt="User Icon" />
+        <h1>Login</h1>
+      </div>
+      <!-- Login Form -->
+      <form id="form-login">
+        <span id="login_error_message"></span>        
+        <input type="text" id="email" name="email" class="fadeIn second" maxlength="50" placeholder="Enter email">
+        <div id="email_error_message" class="text-danger"></div>
+        <input type="password" id="password" name="password" class="fadeIn third" maxlength="50" placeholder="Enter password">
+        <div id="password_error_message" class="text-danger"></div>
+        <input type="submit" class="fadeIn fourth" value="Login">
+      </form>
+      <div id="formFooter">
+        <a class="underlineHover" target="blank" href="http://www.egavilanmedia.com/">www.egavilanmedia.com</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
+<!-- JQuery-3.4.1 -->
+<script src="vendor/jquery-3.4.1.min.js"></script>
+<script>
+
+    $('#form-login').on('submit', function (e) {
+        event.preventDefault();
+        login();
+    });
+
+    var error_user = false;
+    var error_password = false;
+
+    $("#email").focusout(function () {
+        check_email();
+    });
+
+    $("#password").focusout(function () {
+        check_password();
+    });
+
+    function check_email() {
+        var pattern = new RegExp(/^[+a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i);
+        var email_length = $("#email").val().length;
+
+        if ($.trim($('#email').val()) == '') {
+            $("#email_error_message").html("Email is a required field.");
+            $("#email_error_message").show();
+        } else if (!(pattern.test($("#email").val()))) {
+            $("#email_error_message").html("Invalid email address");
+            $("#email_error_message").show();
+            error_email = true;
+        } else {
+            $("#email_error_message").hide();
+        }
+    }
+
+    function check_password() {
+        var password_length = $("#password").val().length;
+        if ($.trim($('#password').val()) == '') {
+            $("#password_error_message").html("Input is blank!");
+            $("#password_error_message").show();
+            error_password = true;
+        }
+        else {
+            $("#password_error_message").hide();
+        }
+    }
+
+    function login() {
+        error_email = false;
+        error_password = false;
+
+        check_email();
+        check_password();
+
+        if (error_email == false && error_password == false) {
+            data = $('#form-login').serialize();
+            $.ajax({
+                type: "POST",
+                data: data,
+                url: "check_login.php",
+                dataType: "json",
+                success: function (data) {
+                    if (data.status == 'inactive') {
+                        $('#login_error_message').html('<div class="alert alert-danger">' + data.error + '</div>');
+                    } else if (data.status == 'success') {
+                        window.location = "index.php";
+                    } else if (data.status == 'error') {
+                        $('#login_error_message').html('<div class="alert alert-danger">' + data.error + '</div>');
+                    }
+                },
+                error: function () {
+                    alert("Oops! Something went wrong.");
+                }
+            });
+        } else {
+            $('#login_error_message').html('<div class="alert alert-danger">Incorrect email or password.</div>');
+        }
+    }
+
+</script>
